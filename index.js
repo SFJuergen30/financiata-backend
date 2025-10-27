@@ -55,7 +55,7 @@ app.delete('/transaction/:id', async (req, res) => {
     }
 });
 
-// --- RUTAS PARA CATEGORÍAS ---
+// --- NUEVAS RUTAS PARA CATEGORÍAS ---
 app.get('/categories/:userId', async (req, res) => {
     try {
         const categories = await Category.find({ userId: req.params.userId });
@@ -75,17 +75,6 @@ app.post('/category', async (req, res) => {
         res.status(201).json(newCategory);
     } catch (error) {
         res.status(400).json({ message: error.message });
-    }
-});
-app.delete('/category/:id', async (req, res) => {
-    try {
-        const deletedCategory = await Category.findByIdAndDelete(req.params.id);
-        if (!deletedCategory) {
-            return res.status(404).json({ message: "Categoría no encontrada." });
-        }
-        res.json({ message: "Categoría eliminada exitosamente." });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
     }
 });
 
