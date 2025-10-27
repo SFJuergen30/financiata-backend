@@ -1,4 +1,4 @@
-// Este es el contenido de tu NUEVO archivo: financiata-backend/index.js
+// Este es el contenido completo y corregido para tu archivo: financiata-backend/index.js
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -8,8 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔴 ¡AQUÍ VA TU LLAVE SECRETA DE MONGODB!
-// Reemplaza <db_password> con la contraseña que creaste en MongoDB Atlas.
+// 🔴 ¡AQUÍ ESTÁ TU LLAVE SECRETA DE MONGODB!
 const MONGO_URI = 'mongodb+srv://juergensf30:Monta2443077@cluster0.pdmhdih.mongodb.net/?appName=Cluster0';
 
 mongoose.connect(MONGO_URI)
@@ -49,6 +48,24 @@ app.post('/transaction', async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 });
+
+// --- ✅ RUTA PARA BORRAR (LA QUE FALTABA) ---
+// Escucha peticiones DELETE en /transaction/ID_DEL_DOCUMENTO
+app.delete('/transaction/:id', async (req, res) => {
+    try {
+        // Busca la transacción por su ID único de MongoDB (_id) y la borra
+        const deletedTransaction = await Transaction.findByIdAndDelete(req.params.id);
+        
+        if (!deletedTransaction) {
+            return res.status(404).json({ message: "Transacción no encontrada" });
+        }
+        
+        res.json({ message: "Transacción eliminada exitosamente" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 
 // Inicia el servidor para que empiece a escuchar peticiones
 const PORT = process.env.PORT || 3001;
