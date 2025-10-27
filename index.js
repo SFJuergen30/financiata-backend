@@ -20,7 +20,6 @@ const TransactionSchema = new mongoose.Schema({
 });
 const Transaction = mongoose.model('Transaction', TransactionSchema);
 
-// ✅ NUEVO MODELO PARA CATEGORÍAS
 const CategorySchema = new mongoose.Schema({
     userId: { type: String, required: true },
     name: { type: String, required: true },
@@ -29,8 +28,6 @@ const Category = mongoose.model('Category', CategorySchema);
 
 
 // --- RUTAS DE LA API ---
-
-// --- Rutas de Transacciones ---
 app.get('/transactions/:userId', async (req, res) => {
     try {
         const transactions = await Transaction.find({ userId: req.params.userId }).sort({ id: -1 });
@@ -58,7 +55,7 @@ app.delete('/transaction/:id', async (req, res) => {
     }
 });
 
-// --- ✅ NUEVAS RUTAS PARA CATEGORÍAS ---
+// --- NUEVAS RUTAS PARA CATEGORÍAS ---
 app.get('/categories/:userId', async (req, res) => {
     try {
         const categories = await Category.find({ userId: req.params.userId });
@@ -69,7 +66,6 @@ app.get('/categories/:userId', async (req, res) => {
 });
 app.post('/category', async (req, res) => {
     try {
-        // Validación básica para evitar duplicados (sensible a mayúsculas/minúsculas)
         const existingCategory = await Category.findOne({ userId: req.body.userId, name: req.body.name });
         if (existingCategory) {
             return res.status(400).json({ message: "La categoría ya existe." });
