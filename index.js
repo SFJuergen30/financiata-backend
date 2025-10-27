@@ -28,13 +28,55 @@ const Category = mongoose.model('Category', CategorySchema);
 
 
 // --- RUTAS DE LA API ---
-app.get('/transactions/:userId', async (req, res) => { /* ... (sin cambios) */ });
-app.post('/transaction', async (req, res) => { /* ... (sin cambios) */ });
-app.delete('/transaction/:id', async (req, res) => { /* ... (sin cambios) */ });
-app.get('/categories/:userId', async (req, res) => { /* ... (sin cambios) */ });
-app.post('/category', async (req, res) => { /* ... (sin cambios) */ });
+app.get('/transactions/:userId', async (req, res) => {
+    try {
+        const transactions = await Transaction.find({ userId: req.params.userId }).sort({ id: -1 });
+        res.json(transactions);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+app.post('/transaction', async (req, res) => {
+    try {
+        const newTransaction = new Transaction(req.body);
+        await newTransaction.save();
+        res.status(201).json(newTransaction);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+app.delete('/transaction/:id', async (req, res) => {
+    try {
+        const deletedTransaction = await Transaction.findByIdAndDelete(req.params.id);
+        if (!deletedTransaction) return res.status(404).json({ message: "Transacción no encontrada" });
+        res.json({ message: "Transacción eliminada" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 
-// --- ✅ NUEVA RUTA PARA BORRAR CATEGORÍAS ---
+// --- RUTAS PARA CATEGORÍAS ---
+app.get('/categories/:userId', async (req, res) => {
+    try {
+        const categories = await Category.find({ userId: req.params.userId });
+        res.json(categories);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+app.post('/category', async (req, res) => {
+    try {
+        const existingCategory = await Category.findOne({ userId: req.body.userId, name: req.body.name });
+        if (existingCategory) {
+            return res.status(400).json({ message: "La categoría ya existe." });
+        }
+        const newCategory = new Category(req.body);
+        await newCategory.save();
+        res.status(201).json(newCategory);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
 app.delete('/category/:id', async (req, res) => {
     try {
         const deletedCategory = await Category.findByIdAndDelete(req.params.id);
@@ -46,7 +88,6 @@ app.delete('/category/:id', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
-
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
